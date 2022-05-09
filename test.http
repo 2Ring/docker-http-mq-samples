@@ -1,0 +1,3 @@
+# WTF
+@jozo
+GET http://localhost:5000/api/http/send/wtf

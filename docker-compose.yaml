@@ -1,0 +1,16 @@
+services:
+    webapi:
+        image: webapi:1.0
+        container_name: webapi
+        ports:
+            - "5000:5000"
+        environment:
+            ASPNETCORE_URLS: "http://*:5000/"
+            DOTNET_BACKEND: "http://dotnetbackend:6000"
+    dotnetbackend:
+        image: dotnetbackend:1.0
+        container_name: dotnetbackend
+        ports:
+            - "6000"
+        environment:
+            ASPNETCORE_URLS: "http://*:6000/"

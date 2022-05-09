@@ -1,0 +1,11 @@
+services:
+    webapi:
+        build:
+            context: ./webapi
+            dockerfile: ./Dockerfile
+        image: webapi:1.0
+    dotnet_backend:
+        build:
+            context: ./dotnetBackend
+            dockerfile: ./Dockerfile
+        image: dotnetbackend:1.0
