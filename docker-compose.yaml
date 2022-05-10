@@ -5,7 +5,7 @@ services:
             - "5000:5000"
         environment:
             ASPNETCORE_URLS: "http://*:5000/"
-            DOTNET_BACKEND: "http://http-backend:6000"
+            HTTP_BACKEND: "http://http-backend:6000"
             Logging__Console__FormatterName: "Simple"
         deploy:
             replicas: 1
@@ -24,6 +24,17 @@ services:
         build:
             context: ./httpBackend
             dockerfile: ./Dockerfile
+    # http-go-backend:
+    #     image: http-go-backend:1.0
+    #     ports:
+    #         - "7000"
+    #     environment:
+    #         GO_PORT: "7000"
+    #     deploy:
+    #         replicas: 1
+    #     build:
+    #         context: ./httpGoBackend
+    #         dockerfile: ./Dockerfile
     mq-backend:
         image: mq-backend:1.0
         environment:

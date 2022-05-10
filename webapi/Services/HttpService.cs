@@ -3,7 +3,7 @@ public class HttpService
 	private Uri backendUri;
 	public HttpService()
 	{
-		var dotnetBackend = Environment.GetEnvironmentVariable("DOTNET_BACKEND") ?? throw new Exception("Empty DOTNET_BACKEND env variable.");
+		var dotnetBackend = Environment.GetEnvironmentVariable("HTTP_BACKEND") ?? throw new Exception("Empty HTTP_BACKEND env variable.");
 		backendUri = new Uri(dotnetBackend);
 	}
 
@@ -14,8 +14,6 @@ public class HttpService
 			client.BaseAddress = backendUri;
 
 			var response = await client.GetAsync(content);
-
-			Console.WriteLine(response.StatusCode);
 
 			response.EnsureSuccessStatusCode();
 
