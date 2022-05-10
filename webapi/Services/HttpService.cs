@@ -1,23 +1,25 @@
 public class HttpService
 {
-	private readonly HttpClient httpClient;
-	public HttpService(HttpClient httpClient)
+	private Uri backendUri;
+	public HttpService()
 	{
 		var dotnetBackend = Environment.GetEnvironmentVariable("DOTNET_BACKEND") ?? throw new Exception("Empty DOTNET_BACKEND env variable.");
-		this.httpClient = httpClient;
-		this.httpClient.BaseAddress = new Uri(dotnetBackend);
+		backendUri = new Uri(dotnetBackend);
 	}
 
-	public async Task<string> SendAsync(string content)
+	public async Task<string> Send(string content)
 	{
-		var request = new HttpRequestMessage
+		using (var client = new HttpClient())
 		{
-			Method = HttpMethod.Post,
-			Content = new StringContent(content)
-		};
+			client.BaseAddress = backendUri;
 
-		var response = await httpClient.SendAsync(request);
-		Console.WriteLine(response.StatusCode);
-		return await response.Content.ReadAsStringAsync();
+			var response = await client.GetAsync(content);
+
+			Console.WriteLine(response.StatusCode);
+
+			response.EnsureSuccessStatusCode();
+
+			return await response.Content.ReadAsStringAsync();
+		}
 	}
 }

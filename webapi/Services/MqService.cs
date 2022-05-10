@@ -1,5 +1,6 @@
 using System.Text;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 
 public class MqService
 {
@@ -7,7 +8,10 @@ public class MqService
 	private IModel channel;
 
 	private const string SEND_QUEUE = "send";
-	private const string RECEIVE_QUEUE = "receive";
+	private readonly string receiveQueue;
+
+	private Dictionary<string, TaskCompletionSource<string>> queuedMessages = new Dictionary<string, TaskCompletionSource<string>>();
+	private EventingBasicConsumer consumer;
 
 	public MqService()
 	{
@@ -27,15 +31,41 @@ public class MqService
 			autoDelete: false,
 			arguments: null
 		);
+
+		receiveQueue = channel.QueueDeclare().QueueName;
+
+		consumer = new EventingBasicConsumer(channel);
+		consumer.Received += OnReceived;
+		channel.BasicConsume(
+			queue: receiveQueue,
+			autoAck: true,
+			consumer: consumer
+		);
 	}
 
-	public Task<string> SendAsync(string message)
+	public void Send(string message)
 	{
 		var body = Encoding.UTF8.GetBytes(message);
 		var props = channel.CreateBasicProperties();
 		props.Expiration = "30000";
-		props.ReplyTo = RECEIVE_QUEUE;
-		props.CorrelationId = Guid.NewGuid().ToString();
+
+
+		channel.BasicPublish(
+			exchange: "",
+			routingKey: SEND_QUEUE,
+			basicProperties: props,
+			body: body
+		);
+	}
+
+	public Task<string> SendAndGetResponse(string message)
+	{
+		var body = Encoding.UTF8.GetBytes(message);
+		var props = channel.CreateBasicProperties();
+		props.Expiration = "30000";
+		props.ReplyTo = receiveQueue;
+		var correlationId = Guid.NewGuid().ToString();
+		props.CorrelationId = correlationId;
 
 		channel.BasicPublish(
 			exchange: "",
@@ -44,9 +74,29 @@ public class MqService
 			body: body
 		);
 
-		Console.WriteLine(" [x] Sent {0}", message);
+		var queuedMessage = new TaskCompletionSource<string>();
 
-		return Task.FromResult<string>("result");
+		queuedMessages.Add(correlationId, queuedMessage);
+
+		return queuedMessage.Task;
+	}
+
+	private void OnReceived(object? sender, BasicDeliverEventArgs ea)
+	{
+		var body = ea.Body.ToArray();
+		var message = Encoding.UTF8.GetString(body);
+
+		var correlationId = ea.BasicProperties.CorrelationId;
+
+		if (queuedMessages.TryGetValue(correlationId, out var queuedMessage))
+		{
+			queuedMessages.Remove(correlationId);
+			queuedMessage.TrySetResult(message);
+		}
+		else
+		{
+			Console.WriteLine("Unknown correlation ID received");
+		}
 	}
 
 }

@@ -8,6 +8,10 @@ class Program
 {
 	static async Task Main(string[] args)
 	{
+		var instanceId = Guid.NewGuid().ToString();
+
+		Console.WriteLine($"Running with instance ID: {instanceId}");
+
 		var factory = new ConnectionFactory() { HostName = "rabbitmq", Port = 5672 };
 		using (var connection = factory.CreateConnection())
 		using (var channel = connection.CreateModel())
@@ -20,19 +24,7 @@ class Program
 				arguments: null
 			);
 
-			Console.WriteLine(" [*] Waiting for logs.");
-
-			var consumer = new EventingBasicConsumer(channel);
-			consumer.Received += (model, ea) =>
-			{
-				var body = ea.Body.ToArray();
-				var message = Encoding.UTF8.GetString(body);
-				Console.WriteLine(" [x] {0}", message);
-			};
-			channel.BasicConsume(queue: "send",
-								 autoAck: true,
-								 consumer: consumer);
-
+			var sendConsumer = new Consumer(channel, "send", instanceId);
 
 			Console.WriteLine("Waiting for messages...");
 			await new HostBuilder().Build().RunAsync();
