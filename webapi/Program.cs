@@ -4,6 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddHttpClient<HttpService>();
+builder.Services.AddSingleton<MqService>();
 
 var app = builder.Build();
 

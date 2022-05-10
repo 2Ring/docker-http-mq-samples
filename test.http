@@ -1,3 +1,8 @@
-# WTF
-@jozo
-GET http://localhost:5000/api/http/send/wtf
+### 
+# @http
+GET http://localhost:5000/api/http/send/test-http
+
+
+### 
+# @mq
+GET http://localhost:5000/api/mq/send/test-wtf

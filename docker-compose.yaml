@@ -14,3 +14,6 @@ services:
             - "6000"
         environment:
             ASPNETCORE_URLS: "http://*:6000/"
+    mqbackend:
+        image: mqbackend:1.0
+        container_name: mqbackend

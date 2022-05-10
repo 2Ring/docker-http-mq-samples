@@ -9,3 +9,8 @@ services:
             context: ./dotnetBackend
             dockerfile: ./Dockerfile
         image: dotnetbackend:1.0
+    mq_backend:
+        build:
+            context: ./mqBackend
+            dockerfile: ./Dockerfile
+        image: mqbackend:1.0
