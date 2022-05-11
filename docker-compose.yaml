@@ -24,12 +24,12 @@ services:
         build:
             context: ./httpBackend
             dockerfile: ./Dockerfile
-    # http-go-backend:
+    # http-backend:
     #     image: http-go-backend:1.0
     #     ports:
-    #         - "7000"
+    #         - "6000"
     #     environment:
-    #         GO_PORT: "7000"
+    #         GO_PORT: "6000"
     #     deploy:
     #         replicas: 1
     #     build:
